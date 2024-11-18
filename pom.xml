@@ -40,8 +40,8 @@
         <wildfly.launcher.scm.connection>git@github.com:wildfly/wildfly-launcher.git</wildfly.launcher.scm.connection>
         <wildfly.launcher.scm.url>https://github.com/wildfly/wildfly-launcher</wildfly.launcher.scm.url>
 
-        <wildfly.launcher.home>${basedir}/target/fake-wildfly</wildfly.launcher.home>
-        <wildfly.launcher.bootable.jar>${basedir}/target/fake-wildfly.jar</wildfly.launcher.bootable.jar>
+        <wildfly.bootable.jar.name>wildfly-bootable.jar</wildfly.bootable.jar.name>
+        <wildfly.launcher.bootable.jar>${basedir}/target/${wildfly.bootable.jar.name}</wildfly.launcher.bootable.jar>
 
         <!-- Base on SE 11. -->
         <maven.compiler.target>11</maven.compiler.target>
@@ -52,6 +52,7 @@
 
         <!-- Non-default maven plugin versions and configuration -->
         <version.org.wildfly.checkstyle-config>1.0.8.Final</version.org.wildfly.checkstyle-config>
+        <version.org.wildfly.plugins.wildfly-maven-plugin>5.1.0.Alpha1</version.org.wildfly.plugins.wildfly-maven-plugin>
 
         <!-- Production/build time dependencies-->
         <version.org.jboss.logging.jboss-logging>3.6.1.Final</version.org.jboss.logging.jboss-logging>
@@ -59,6 +60,20 @@
         <!-- Test dependencies -->
         <version.org.jboss.modules.jboss-modules>2.1.5.Final</version.org.jboss.modules.jboss-modules>
         <version.org.junit>5.11.3</version.org.junit>
+
+        <!-- Test properties -->
+        <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
+
+        <!-- Provisioning properties for tests -->
+        <jboss.home>${project.build.directory}/server</jboss.home>
+
+        <wildfly.feature.pack.groupId>org.wildfly</wildfly.feature.pack.groupId>
+        <wildfly.feature.pack.artifactId>wildfly-ee-galleon-pack</wildfly.feature.pack.artifactId>
+        <wildfly.feature.pack.version/>
+
+        <wildfly.channel.manifest.groupId>org.wildfly.channels</wildfly.channel.manifest.groupId>
+        <wildfly.channel.manifest.artifactId>wildfly-ee</wildfly.channel.manifest.artifactId>
+        <wildfly.channel.manifest.version>${wildfly.feature.pack.version}</wildfly.channel.manifest.version>
     </properties>
 
     <dependencyManagement>
@@ -113,6 +128,19 @@
             <version>${version.org.jboss.modules.jboss-modules}</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.wildfly.plugins</groupId>
+            <artifactId>wildfly-plugin-tools</artifactId>
+            <version>1.2.0.Beta1</version>
+            <scope>test</scope>
+            <exclusions>
+                <!-- Use this launcher API -->
+                <exclusion>
+                    <groupId>org.wildfly.core</groupId>
+                    <artifactId>wildfly-launcher</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
     </dependencies>
 
@@ -163,7 +191,6 @@
                         <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
                         <includeTestSourceDirectory>true</includeTestSourceDirectory>
                         <excludes>**/*$logger.java,**/*$bundle.java</excludes>
-                        <useFile></useFile>
                     </configuration>
                 </plugin>
 
@@ -225,10 +252,64 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <systemPropertyVariables>
+                        <jboss.home>${jboss.home}</jboss.home>
                         <wildfly.launcher.home>${wildfly.launcher.home}</wildfly.launcher.home>
                         <wildfly.launcher.bootable.jar>${wildfly.launcher.bootable.jar}</wildfly.launcher.bootable.jar>
                     </systemPropertyVariables>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.wildfly.plugins</groupId>
+                <artifactId>wildfly-maven-plugin</artifactId>
+                <version>${version.org.wildfly.plugins.wildfly-maven-plugin}</version>
+                <configuration>
+                    <jboss-home>${jboss.home}</jboss-home>
+                    <provisioning-dir>${jboss.home}</provisioning-dir>
+                    <feature-packs>
+                        <feature-pack>
+                            <groupId>${wildfly.feature.pack.groupId}</groupId>
+                            <artifactId>${wildfly.feature.pack.artifactId}</artifactId>
+                            <version>${wildfly.feature.pack.version}</version>
+                        </feature-pack>
+                    </feature-packs>
+                    <channels>
+                        <!-- If the server.version is blank the newest version of WildFly will be used. Otherwise, be
+                             explicit.
+                         -->
+                        <channel>
+                            <manifest>
+                                <groupId>${wildfly.channel.manifest.groupId}</groupId>
+                                <artifactId>${wildfly.channel.manifest.artifactId}</artifactId>
+                                <version>${wildfly.channel.manifest.version}</version>
+                            </manifest>
+                        </channel>
+                    </channels>
+                    <galleon-options>
+                        <jboss-maven-dist/>
+                    </galleon-options>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>provision-test-server</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>provision</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>provision-bootable-jar</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>package</goal>
+                        </goals>
+                        <configuration>
+                            <provisioning-dir>${project.build.directory}/bootable-jar-working</provisioning-dir>
+                            <bootable-jar>true</bootable-jar>
+                            <bootable-jar-name>${wildfly.bootable.jar.name}</bootable-jar-name>
+                            <skipDeployment>true</skipDeployment>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
 
