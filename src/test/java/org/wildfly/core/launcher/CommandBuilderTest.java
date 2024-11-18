@@ -5,6 +5,10 @@
 
 package org.wildfly.core.launcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,14 +17,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import org.wildfly.core.launcher.Arguments.Argument;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-public class CommandBuilderTest {
+class CommandBuilderTest {
 
     private static final Path WILDFLY_HOME;
     private static final Path WILDFLY_BOOTABLE_JAR;
@@ -40,7 +44,7 @@ public class CommandBuilderTest {
     }
 
     @Test
-    public void testJBossModulesBuilder() {
+    void jBossModulesBuilder() {
         // Set up a standalone command builder
         final JBossModulesCommandBuilder commandBuilder = JBossModulesCommandBuilder.of(WILDFLY_HOME, "org.jboss.as.launcher.test")
                 .addJavaOption("-Djava.security.manager")
@@ -52,11 +56,11 @@ public class CommandBuilderTest {
         // Get all the commands
         List<String> commands = commandBuilder.buildArguments();
 
-        Assert.assertTrue("Missing -secmgr option", commands.contains("-secmgr"));
+        assertTrue(commands.contains("-secmgr"), "Missing -secmgr option");
 
-        Assert.assertTrue("Missing jboss-modules.jar", commands.stream().anyMatch(entry -> entry.matches("-javaagent:.*jboss-modules.jar$")));
-        Assert.assertTrue("Missing test-agent1.jar", commands.contains("-javaagent:test-agent1.jar"));
-        Assert.assertTrue("Missing --server=test", commands.contains("--server=test"));
+        assertTrue(commands.stream().anyMatch(entry -> entry.matches("-javaagent:.*jboss-modules.jar$")), "Missing jboss-modules.jar");
+        assertTrue(commands.contains("-javaagent:test-agent1.jar"), "Missing test-agent1.jar");
+        assertTrue(commands.contains("--server=test"), "Missing --server=test");
 
         // If we're using Java 9+ ensure the modular JDK options were added
         testModularJvmArguments(commands, 1);
@@ -68,14 +72,14 @@ public class CommandBuilderTest {
                 count++;
             }
         }
-        Assert.assertEquals("There should be only one java.net.preferIPv4Stack system property", 1, count);
+        assertEquals(1, count, "There should be only one java.net.preferIPv4Stack system property");
 
         // The value saved should be the last value added
-        Assert.assertTrue("java.net.preferIPv4Stack should be set to false", commandBuilder.getJavaOptions().contains("-Djava.net.preferIPv4Stack=false"));
+        assertTrue(commandBuilder.getJavaOptions().contains("-Djava.net.preferIPv4Stack=false"), "java.net.preferIPv4Stack should be set to false");
     }
 
     @Test
-    public void testStandaloneBuilder() {
+    void standaloneBuilder() {
         // Set up a standalone command builder
         final StandaloneCommandBuilder commandBuilder = StandaloneCommandBuilder.of(WILDFLY_HOME)
                 .setAdminOnly()
@@ -91,20 +95,20 @@ public class CommandBuilderTest {
         // Get all the commands
         List<String> commands = commandBuilder.buildArguments();
 
-        Assert.assertTrue("--admin-only is missing", commands.contains("--admin-only"));
+        assertTrue(commands.contains("--admin-only"), "--admin-only is missing");
 
-        Assert.assertTrue("Missing -b=0.0.0.0", commands.contains("-b=0.0.0.0"));
+        assertTrue(commands.contains("-b=0.0.0.0"), "Missing -b=0.0.0.0");
 
-        Assert.assertTrue("Missing -b=0.0.0.0", commands.contains("-bmanagement=0.0.0.0"));
+        assertTrue(commands.contains("-bmanagement=0.0.0.0"), "Missing -b=0.0.0.0");
 
-        Assert.assertTrue("Missing debug argument", commands.contains(String.format(StandaloneCommandBuilder.DEBUG_FORMAT, "y", 5005)));
+        assertTrue(commands.contains(String.format(StandaloneCommandBuilder.DEBUG_FORMAT, "y", 5005)), "Missing debug argument");
 
-        Assert.assertTrue("Missing server configuration file override", commands.contains("-c=standalone-full.xml"));
+        assertTrue(commands.contains("-c=standalone-full.xml"), "Missing server configuration file override");
 
-        Assert.assertTrue("Missing -secmgr option", commands.contains("-secmgr"));
+        assertTrue(commands.contains("-secmgr"), "Missing -secmgr option");
 
-        Assert.assertTrue("Missing jboss-modules.jar", commands.stream().anyMatch(entry -> entry.matches("-javaagent:.*jboss-modules.jar$")));
-        Assert.assertTrue("Missing test-agent1.jar", commands.contains("-javaagent:test-agent1.jar"));
+        assertTrue(commands.stream().anyMatch(entry -> entry.matches("-javaagent:.*jboss-modules.jar$")), "Missing jboss-modules.jar");
+        assertTrue(commands.contains("-javaagent:test-agent1.jar"), "Missing test-agent1.jar");
 
         // If we're using Java 9+ ensure the modular JDK options were added
         testModularJvmArguments(commands, 1);
@@ -116,19 +120,19 @@ public class CommandBuilderTest {
                 count++;
             }
         }
-        Assert.assertEquals("There should be only one java.net.preferIPv4Stack system property", 1, count);
+        assertEquals(1, count, "There should be only one java.net.preferIPv4Stack system property");
 
         // The value saved should be the last value added
-        Assert.assertTrue("java.net.preferIPv4Stack should be set to false", commandBuilder.getJavaOptions().contains("-Djava.net.preferIPv4Stack=false"));
+        assertTrue(commandBuilder.getJavaOptions().contains("-Djava.net.preferIPv4Stack=false"), "java.net.preferIPv4Stack should be set to false");
 
         // Rename the binding address
         commandBuilder.setBindAddressHint(null);
         commands = commandBuilder.buildArguments();
-        Assert.assertFalse("Binding address should have been removed", commands.contains("-b=0.0.0.0"));
+        assertFalse(commands.contains("-b=0.0.0.0"), "Binding address should have been removed");
     }
 
     @Test
-    public void testBootableJarBuilder() {
+    void bootableJarBuilder() {
         // Set up a bootable command builder
         final BootableJarCommandBuilder commandBuilder = BootableJarCommandBuilder.of(WILDFLY_BOOTABLE_JAR)
                 .setInstallDir(Paths.get("foo"))
@@ -145,15 +149,15 @@ public class CommandBuilderTest {
         // Get all the commands
         List<String> commands = commandBuilder.buildArguments();
 
-        Assert.assertTrue("--install-dir is missing", commands.contains("--install-dir=bar"));
+        assertTrue(commands.contains("--install-dir=bar"), "--install-dir is missing");
 
-        Assert.assertTrue("Missing -b=0.0.0.0", commands.contains("-b=0.0.0.0"));
+        assertTrue(commands.contains("-b=0.0.0.0"), "Missing -b=0.0.0.0");
 
-        Assert.assertTrue("Missing -b=0.0.0.0", commands.contains("-bmanagement=0.0.0.0"));
+        assertTrue(commands.contains("-bmanagement=0.0.0.0"), "Missing -b=0.0.0.0");
 
-        Assert.assertTrue("Missing debug argument", commands.contains(String.format(StandaloneCommandBuilder.DEBUG_FORMAT, "y", 5005)));
+        assertTrue(commands.contains(String.format(StandaloneCommandBuilder.DEBUG_FORMAT, "y", 5005)), "Missing debug argument");
 
-        Assert.assertTrue("--yaml is missing", commands.contains("--yaml=" + Path.of("dummy.yml").toFile().getAbsolutePath()));
+        assertTrue(commands.contains("--yaml=" + Path.of("dummy.yml").toFile().getAbsolutePath()), "--yaml is missing");
 
         // If we're using Java 12+. the enhanced security manager option must be set.
         testEnhancedSecurityManager(commands, 1);
@@ -166,7 +170,7 @@ public class CommandBuilderTest {
                 count++;
             }
         }
-        Assert.assertEquals("There should be only one java.net.preferIPv4Stack system property", 1, count);
+        assertEquals(1, count, "There should be only one java.net.preferIPv4Stack system property");
 
         // Install dir should be added once.
         count = 0L;
@@ -175,7 +179,7 @@ public class CommandBuilderTest {
                 count++;
             }
         }
-        Assert.assertEquals("There should be only one --install-dir", 1, count);
+        assertEquals(1, count, "There should be only one --install-dir");
 
         // Install dir should be added once.
         count = 0L;
@@ -184,16 +188,16 @@ public class CommandBuilderTest {
                 count++;
             }
         }
-        Assert.assertEquals("There should be only one --yaml", 1, count);
+        assertEquals(1, count, "There should be only one --yaml");
 
         // Rename the binding address
         commandBuilder.setBindAddressHint(null);
         commands = commandBuilder.buildArguments();
-        Assert.assertFalse("Binding address should have been removed", commands.contains("-b=0.0.0.0"));
+        assertFalse(commands.contains("-b=0.0.0.0"), "Binding address should have been removed");
     }
 
     @Test
-    public void testDomainBuilder() {
+    void domainBuilder() {
         // Set up a standalone command builder
         final DomainCommandBuilder commandBuilder = DomainCommandBuilder.of(WILDFLY_HOME)
                 .setAdminOnly()
@@ -207,17 +211,17 @@ public class CommandBuilderTest {
         // Get all the commands
         List<String> commands = commandBuilder.buildArguments();
 
-        Assert.assertTrue("--admin-only is missing", commands.contains("--admin-only"));
+        assertTrue(commands.contains("--admin-only"), "--admin-only is missing");
 
-        Assert.assertTrue("Missing -b=0.0.0.0", commands.contains("-b=0.0.0.0"));
+        assertTrue(commands.contains("-b=0.0.0.0"), "Missing -b=0.0.0.0");
 
-        Assert.assertTrue("Missing -b=0.0.0.0", commands.contains("--primary-address=0.0.0.0"));
+        assertTrue(commands.contains("--primary-address=0.0.0.0"), "Missing -b=0.0.0.0");
 
-        Assert.assertTrue("Missing -b=0.0.0.0", commands.contains("-bmanagement=0.0.0.0"));
+        assertTrue(commands.contains("-bmanagement=0.0.0.0"), "Missing -b=0.0.0.0");
 
-        Assert.assertTrue("Missing server configuration file override", commands.contains("-c=domain.xml"));
+        assertTrue(commands.contains("-c=domain.xml"), "Missing server configuration file override");
 
-        Assert.assertTrue("Missing -secmgr option", commands.contains("-secmgr"));
+        assertTrue(commands.contains("-secmgr"), "Missing -secmgr option");
 
         // If we're using Java 9+ ensure the modular JDK options were added
         testModularJvmArguments(commands, 2);
@@ -225,11 +229,11 @@ public class CommandBuilderTest {
         // Rename the binding address
         commandBuilder.setBindAddressHint(null);
         commands = commandBuilder.buildArguments();
-        Assert.assertFalse("Binding address should have been removed", commands.contains("-b=0.0.0.0"));
+        assertFalse(commands.contains("-b=0.0.0.0"), "Binding address should have been removed");
     }
 
     @Test
-    public void testCliBuilder() {
+    void cliBuilder() {
         // Set up a standalone command builder
         final CliCommandBuilder commandBuilder = CliCommandBuilder.asModularLauncher(WILDFLY_HOME)
                 .addJavaOption("-Djava.net.preferIPv4Stack=true")
@@ -248,14 +252,14 @@ public class CommandBuilderTest {
                 count++;
             }
         }
-        Assert.assertEquals("There should be only one java.net.preferIPv4Stack system property", 1, count);
+        assertEquals(1, count, "There should be only one java.net.preferIPv4Stack system property");
 
         // The value saved should be the last value added
-        Assert.assertTrue("java.net.preferIPv4Stack should be set to false", commandBuilder.getJavaOptions().contains("-Djava.net.preferIPv4Stack=false"));
+        assertTrue(commandBuilder.getJavaOptions().contains("-Djava.net.preferIPv4Stack=false"), "java.net.preferIPv4Stack should be set to false");
     }
 
     @Test
-    public void testArguments() {
+    void arguments() {
         final Arguments arguments = new Arguments();
         arguments.add("-Dkey=value");
         arguments.add("-X");
@@ -266,25 +270,25 @@ public class CommandBuilderTest {
 
         // Validate the arguments
         Iterator<Argument> iter = arguments.getArguments("key").iterator();
-        Assert.assertTrue("Missing 'key' entry", iter.hasNext());
-        Assert.assertEquals("value", arguments.get("key"));
-        Assert.assertEquals("-Dkey=value", iter.next().asCommandLineArgument());
+        assertTrue(iter.hasNext(), "Missing 'key' entry");
+        assertEquals("value", arguments.get("key"));
+        assertEquals("-Dkey=value", iter.next().asCommandLineArgument());
 
         // -X should have been added twice
-        Assert.assertEquals(2, arguments.getArguments("-X").size());
+        assertEquals(2, arguments.getArguments("-X").size());
 
         // Using set should only add the value once
-        Assert.assertEquals("Should not be more than one 'single-key' argument", 1, arguments.getArguments("single-key").size());
+        assertEquals(1, arguments.getArguments("single-key").size(), "Should not be more than one 'single-key' argument");
 
         // Convert the arguments to a list and ensure each entry has been added in the format expected
         final List<String> stringArgs = arguments.asList();
-        Assert.assertEquals(7, stringArgs.size());
-        Assert.assertTrue("Missing -Dkey=value", stringArgs.contains("-Dkey=value"));
-        Assert.assertTrue("Missing -X", stringArgs.contains("-X"));
-        Assert.assertTrue("Missing single-key=single-value", stringArgs.contains("single-key=single-value"));
-        Assert.assertTrue("Missing -Dprop1=value1", stringArgs.contains("-Dprop1=value1"));
-        Assert.assertTrue("Missing -Dprop2=value2", stringArgs.contains("-Dprop2=value2"));
-        Assert.assertTrue("Missing -Dprop3=value3", stringArgs.contains("-Dprop3=value3"));
+        assertEquals(7, stringArgs.size());
+        assertTrue(stringArgs.contains("-Dkey=value"), "Missing -Dkey=value");
+        assertTrue(stringArgs.contains("-X"), "Missing -X");
+        assertTrue(stringArgs.contains("single-key=single-value"), "Missing single-key=single-value");
+        assertTrue(stringArgs.contains("-Dprop1=value1"), "Missing -Dprop1=value1");
+        assertTrue(stringArgs.contains("-Dprop2=value2"), "Missing -Dprop2=value2");
+        assertTrue(stringArgs.contains("-Dprop3=value3"), "Missing -Dprop3=value3");
     }
 
     private void testEnhancedSecurityManager(final Collection<String> command, final int expectedCount) {
@@ -292,8 +296,8 @@ public class CommandBuilderTest {
         if (Jvm.current().enhancedSecurityManagerAvailable()) {
             assertArgumentExists(command, "-Djava.security.manager=allow", expectedCount);
         } else {
-            Assert.assertFalse("Did not expect \"-Djava.security.manager=allow\" to be in the command list",
-                    command.contains("-Djava.security.manager=allow"));
+            assertFalse(command.contains("-Djava.security.manager=allow"),
+                    "Did not expect \"-Djava.security.manager=allow\" to be in the command list");
         }
     }
 
@@ -337,7 +341,7 @@ public class CommandBuilderTest {
                 count++;
             }
         }
-        Assert.assertEquals(String.format("Expected %d %s arguments, found %d", expectedCount, arg, count), expectedCount, count);
+        assertEquals(expectedCount, count, String.format("Expected %d %s arguments, found %d", expectedCount, arg, count));
     }
 
 }

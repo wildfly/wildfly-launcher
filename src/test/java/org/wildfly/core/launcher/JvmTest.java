@@ -5,6 +5,8 @@
 
 package org.wildfly.core.launcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
@@ -14,16 +16,15 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-public class JvmTest {
+class JvmTest {
 
     @Test
-    public void testReleaseFile() throws Exception {
+    void releaseFile() throws Exception {
         testReleaseFile("", false);
         testReleaseFile("1.8.0", false);
         testReleaseFile("1.8.0_191", false);
@@ -40,8 +41,7 @@ public class JvmTest {
     private static void testReleaseFile(final String version, final boolean expectedValue) throws IOException {
         final Path javaHome = createFakeJavaHome(version);
         try {
-            Assert.assertEquals(String.format("Expected version %s to %s a modular JVM", version, (expectedValue ? "be" : "not be")),
-                    expectedValue, Jvm.of(javaHome).isModular());
+            assertEquals(expectedValue, Jvm.of(javaHome).isModular(), String.format("Expected version %s to %s a modular JVM", version, (expectedValue ? "be" : "not be")));
         } finally {
             Files.walkFileTree(javaHome, new SimpleFileVisitor<Path>() {
                 @Override

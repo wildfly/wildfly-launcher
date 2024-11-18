@@ -5,6 +5,10 @@
 
 package org.wildfly.core.launcher;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,38 +17,37 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
-public class LauncherTest {
+class LauncherTest {
 
     private Path stdout;
 
-    @Before
-    public void setup() throws IOException {
+    @BeforeEach
+    void setup() throws IOException {
         stdout = Files.createTempFile("stdout", ".txt");
     }
 
-    @After
-    public void deleteStdout() throws IOException {
+    @AfterEach
+    void deleteStdout() throws IOException {
         if (stdout != null) {
             Files.deleteIfExists(stdout);
         }
     }
 
     @Test
-    public void checkSingleNullEnvironmentVariable() throws Exception {
+    void checkSingleNullEnvironmentVariable() throws Exception {
         final TestCommandBuilder commandBuilder = new TestCommandBuilder();
         checkProcess(Launcher.of(commandBuilder).addEnvironmentVariable("TEST", null));
     }
 
     @Test
-    public void checkNullEnvironmentVariables() throws Exception {
+    void checkNullEnvironmentVariables() throws Exception {
         final TestCommandBuilder commandBuilder = new TestCommandBuilder();
         final Map<String, String> env = new HashMap<>();
         env.put("TEST", null);
@@ -56,10 +59,9 @@ public class LauncherTest {
         Process process = null;
         try {
             process = launcher.setRedirectErrorStream(true).redirectOutput(stdout).launch();
-            Assert.assertNotNull("Process should not be null", process);
-            Assert.assertTrue("Process should have exited within 5 seconds", process.waitFor(5, TimeUnit.SECONDS));
-            Assert.assertEquals(String.format("Process should have exited with an exit code of 0:%n%s", Files.readString(stdout)),
-                    0, process.exitValue());
+            assertNotNull(process, "Process should not be null");
+            assertTrue(process.waitFor(5, TimeUnit.SECONDS), "Process should have exited within 5 seconds");
+            assertEquals(0, process.exitValue(), String.format("Process should have exited with an exit code of 0:%n%s", Files.readString(stdout)));
         } finally {
             ProcessHelper.destroyProcess(process);
         }
