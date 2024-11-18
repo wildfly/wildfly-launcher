@@ -17,7 +17,7 @@
 
     <groupId>org.wildfly.launcher</groupId>
     <artifactId>wildfly-launcher</artifactId>
-    <version>1.0.0.Beta1-SNAPSHOT</version>
+    <version>1.0.0.Beta1</version>
 
     <name>WildFly: Launcher API</name>
     <description>Tooling for launching WildFly technology stack processes.</description>
