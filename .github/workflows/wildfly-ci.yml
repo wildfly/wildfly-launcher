@@ -1,0 +1,102 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: WildFly Launcher Integration - CI
+
+on:
+  push:
+    branches-ignore:
+      - 'dependabot/**'
+  pull_request:
+    branches:
+      - '**'
+    paths:
+      - '.github/workflows/wildfly-ci.yml'
+  schedule:
+    - cron: '0 0 * * *' # Every day at 00:00 UTC
+
+# Only run the latest job
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+
+  wildfly-test-and-build:
+    name: '${{ matrix.os }}-jdk${{ matrix.java }}'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ 'ubuntu-latest' , 'windows-latest' ]
+        java: ['17', '21', '24-ea']
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: wildfly-extras/wildfly-nightly-download@v1
+        id: wildfly-nightly
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          cache: 'maven'
+          distribution: 'temurin'
+      - name: Build and Test on ${{ matrix.os }} - ${{ matrix.java }} with WildFly ${{steps.wildfly-nightly.outputs.wildfly-version}}
+        run: mvn clean install '-Dwildfly.feature.pack.version=${{steps.wildfly-nightly.outputs.wildfly-version}}'
+      - name: Upload surefire logs for failed run
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: surefire-reports-${{ matrix.os }}-${{ matrix.java }}
+          path: '**/surefire-reports/'
+      - name: Upload failsafe logs for failed run
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: failsafe-reports-${{ matrix.os }}-${{ matrix.java }}
+          path: '**/failsafe-reports/'
+      - name: Upload logs for failed run
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: server-logs-${{ matrix.os }}-${{ matrix.java }}
+          path: '**/*.log'
+
+  legacy-test-and-build:
+    name: 'legacy-${{ matrix.os }}-jdk${{ matrix.java }}'
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ 'ubuntu-latest' , 'windows-latest' ]
+        java: ['11', '17', '21']
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java }}
+          cache: 'maven'
+          distribution: 'temurin'
+      - name: Build and Test on ${{ matrix.os }} - ${{ matrix.java }} with WildFly 32.0.0.Final
+        # 32.0.0.Final was the first version which deployed channels
+        run: mvn clean install '-Dwildfly.feature.pack.version=32.0.0.Final'
+      - name: Upload surefire logs for failed run
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: legacy-surefire-reports-${{ matrix.os }}-${{ matrix.java }}
+          path: '**/surefire-reports/'
+      - name: Upload failsafe logs for failed run
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: legacy-failsafe-reports-${{ matrix.os }}-${{ matrix.java }}
+          path: '**/failsafe-reports/'
+      - name: Upload logs for failed run
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: legacy-server-logs-${{ matrix.os }}-${{ matrix.java }}
+          path: '**/*.log'
