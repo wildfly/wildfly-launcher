@@ -1,0 +1,136 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: WildFly Luancher Integration Tests
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - '.github/workflows/integration-tests.yml'
+      - '**/pom.xml'
+      - 'src/main/**'
+      - '!src/test/**'
+  pull_request:
+    branches:
+      - '**'
+    paths:
+      - '.github/workflows/integration-tests.yml'
+      - '**/pom.xml'
+      - 'src/**'
+      - '!src/test/**'
+  schedule:
+    - cron: '0 0 * * *' # Every day at 00:00 UTC
+
+# Only run the latest job
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+
+  arquillian-test:
+    name: WildFly Arquillian Integration Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v4
+        with:
+          path: wildfly-launcher
+      - name: Set up JDKs
+        uses: actions/setup-java@v4
+        with:
+          java-version: |
+            11
+            17
+            21
+          distribution: 'temurin'
+          architecture: x64
+          cache: 'maven'
+
+      - name: Install SNAPSHOT
+        run: |
+          cd wildfly-launcher
+          mvn -B -ntp install -DskipTests
+      - name: Check out WildFly Arquillian
+        uses: actions/checkout@v4
+        with:
+          repository: wildfly/wildfly-arquillian
+          path: wildfly-arquillian
+      - name: Test WildFly Arquillian
+        run: |
+          cd wildfly-arquillian
+          mvn versions:use-latest-snapshots -DallowSnapshots -Dincludes=org.wildfly.launcher:wildfly-launcher versions:update-properties
+          git diff
+          mvn -B -ntp install -Djava11.home=${{env.JAVA_HOME_11_X64}} -Djava17.home=${{env.JAVA_HOME_17_X64}}
+
+  maven-plugin-test:
+    name: WildFly Maven Plugin Integration Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v4
+        with:
+          path: wildfly-launcher
+      - name: Set up JDKs
+        uses: actions/setup-java@v4
+        with:
+          java-version: |
+            11
+            17
+            21
+          distribution: 'temurin'
+          architecture: x64
+          cache: 'maven'
+
+      - name: Install SNAPSHOT
+        run: |
+          cd wildfly-launcher
+          mvn -B -ntp install -DskipTests
+      - name: Check out WildFly Maven Plugin
+        uses: actions/checkout@v4
+        with:
+          repository: wildfly/wildfly-maven-plugin
+          path: wildfly-maven-plugin
+      - name: Test the WildFly Maven Plugin
+        run: |
+          cd wildfly-maven-plugin
+          mvn versions:use-latest-snapshots -DallowSnapshots -Dincludes=org.wildfly.launcher:wildfly-launcher versions:update-properties
+          git diff
+          mvn -B -ntp install -Djava11.home=${{env.JAVA_HOME_11_X64}} -Djava17.home=${{env.JAVA_HOME_17_X64}}
+
+  wildfly-plugin-tools-test:
+    name: WildFly Plugin Tools Integration Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Project
+        uses: actions/checkout@v4
+        with:
+          path: wildfly-launcher
+      - name: Set up JDKs
+        uses: actions/setup-java@v4
+        with:
+          java-version: |
+            11
+            17
+            21
+          distribution: 'temurin'
+          architecture: x64
+          cache: 'maven'
+
+      - name: Install SNAPSHOT
+        run: |
+          cd wildfly-launcher
+          mvn -B -ntp install -DskipTests
+      - name: Check out WildFly Plugin Tools
+        uses: actions/checkout@v4
+        with:
+          repository: wildfly/wildfly-plugin-tools
+          path: wildfly-plugin-tools
+      - name: Test the WildFly Plugin Tools
+        run: |
+          cd wildfly-plugin-tools
+          mvn versions:use-latest-snapshots -DallowSnapshots -Dincludes=org.wildfly.launcher:wildfly-launcher versions:update-properties
+          git diff
+          mvn -B -ntp install -Djava11.home=${{env.JAVA_HOME_11_X64}} -Djava17.home=${{env.JAVA_HOME_17_X64}}

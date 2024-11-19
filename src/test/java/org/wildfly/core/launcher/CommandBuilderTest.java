@@ -9,8 +9,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
@@ -18,7 +16,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-
 import org.wildfly.core.launcher.Arguments.Argument;
 
 /**
@@ -30,17 +27,8 @@ class CommandBuilderTest {
     private static final Path WILDFLY_BOOTABLE_JAR;
 
     static {
-        WILDFLY_HOME = Paths.get(System.getProperty("wildfly.launcher.home")).toAbsolutePath().normalize();
+        WILDFLY_HOME = Paths.get(System.getProperty("jboss.home")).toAbsolutePath().normalize();
         WILDFLY_BOOTABLE_JAR = Paths.get(System.getProperty("wildfly.launcher.bootable.jar")).toAbsolutePath().normalize();
-
-        // Create some default directories and empty bootable fake jar file
-        try {
-            Files.createFile(WILDFLY_BOOTABLE_JAR);
-            Files.createDirectories(WILDFLY_HOME.resolve("modules"));
-            Files.createDirectories(WILDFLY_HOME.resolve("configuration"));
-            Files.createDirectories(WILDFLY_HOME.resolve("data"));
-        } catch (IOException ignore) {
-        }
     }
 
     @Test
