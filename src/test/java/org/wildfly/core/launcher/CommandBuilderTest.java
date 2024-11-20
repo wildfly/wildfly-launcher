@@ -7,6 +7,7 @@ package org.wildfly.core.launcher;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
@@ -33,18 +34,25 @@ class CommandBuilderTest {
 
     @Test
     void jBossModulesBuilder() {
+        final int featureVersion = Runtime.version().feature();
         // Set up a standalone command builder
         final JBossModulesCommandBuilder commandBuilder = JBossModulesCommandBuilder.of(WILDFLY_HOME, "org.jboss.as.launcher.test")
-                .addJavaOption("-Djava.security.manager")
                 .addJavaOption("-Djava.net.preferIPv4Stack=true")
                 .addJavaOption("-Djava.net.preferIPv4Stack=false")
                 .addModuleOption("-javaagent:test-agent1.jar")
                 .addServerArgument("--server=test");
 
+        if (featureVersion < 24) {
+            commandBuilder.addJavaOption("-Djava.security.manager");
+        } else {
+            assertThrows(IllegalArgumentException.class, () -> commandBuilder.addJavaOption("-Djava.security.manager"));
+            assertThrows(IllegalArgumentException.class, () -> commandBuilder.setUseSecurityManager(true));
+        }
+
         // Get all the commands
         List<String> commands = commandBuilder.buildArguments();
 
-        assertTrue(commands.contains("-secmgr"), "Missing -secmgr option");
+        assertEquals(featureVersion < 24, commands.contains("-secmgr"), "Missing -secmgr option");
 
         assertTrue(commands.stream().anyMatch(entry -> entry.matches("-javaagent:.*jboss-modules.jar$")), "Missing jboss-modules.jar");
         assertTrue(commands.contains("-javaagent:test-agent1.jar"), "Missing test-agent1.jar");
@@ -68,17 +76,24 @@ class CommandBuilderTest {
 
     @Test
     void standaloneBuilder() {
+        final int featureVersion = Runtime.version().feature();
         // Set up a standalone command builder
         final StandaloneCommandBuilder commandBuilder = StandaloneCommandBuilder.of(WILDFLY_HOME)
                 .setAdminOnly()
                 .setBindAddressHint("0.0.0.0")
                 .setDebug(true, 5005)
                 .setServerConfiguration("standalone-full.xml")
-                .addJavaOption("-Djava.security.manager")
                 .addJavaOption("-Djava.net.preferIPv4Stack=true")
                 .addJavaOption("-Djava.net.preferIPv4Stack=false")
                 .addModuleOption("-javaagent:test-agent1.jar")
                 .setBindAddressHint("management", "0.0.0.0");
+
+        if (featureVersion < 24) {
+            commandBuilder.addJavaOption("-Djava.security.manager");
+        } else {
+            assertThrows(IllegalArgumentException.class, () -> commandBuilder.addJavaOption("-Djava.security.manager"));
+            assertThrows(IllegalArgumentException.class, () -> commandBuilder.setUseSecurityManager(true));
+        }
 
         // Get all the commands
         List<String> commands = commandBuilder.buildArguments();
@@ -93,7 +108,7 @@ class CommandBuilderTest {
 
         assertTrue(commands.contains("-c=standalone-full.xml"), "Missing server configuration file override");
 
-        assertTrue(commands.contains("-secmgr"), "Missing -secmgr option");
+        assertEquals(featureVersion < 24, commands.contains("-secmgr"), "Missing -secmgr option");
 
         assertTrue(commands.stream().anyMatch(entry -> entry.matches("-javaagent:.*jboss-modules.jar$")), "Missing jboss-modules.jar");
         assertTrue(commands.contains("-javaagent:test-agent1.jar"), "Missing test-agent1.jar");
@@ -186,6 +201,7 @@ class CommandBuilderTest {
 
     @Test
     void domainBuilder() {
+        final int featureVersion = Runtime.version().feature();
         // Set up a standalone command builder
         final DomainCommandBuilder commandBuilder = DomainCommandBuilder.of(WILDFLY_HOME)
                 .setAdminOnly()
@@ -193,8 +209,14 @@ class CommandBuilderTest {
                 .setMasterAddressHint("0.0.0.0")
                 .setDomainConfiguration("domain.xml")
                 .setHostConfiguration("host.xml")
-                .addProcessControllerJavaOption("-Djava.security.manager")
                 .setBindAddressHint("management", "0.0.0.0");
+
+        if (featureVersion < 24) {
+            commandBuilder.addJavaOption("-Djava.security.manager");
+        } else {
+            assertThrows(IllegalArgumentException.class, () -> commandBuilder.addJavaOption("-Djava.security.manager"));
+            assertThrows(IllegalArgumentException.class, () -> commandBuilder.setUseSecurityManager(true));
+        }
 
         // Get all the commands
         List<String> commands = commandBuilder.buildArguments();
@@ -209,7 +231,7 @@ class CommandBuilderTest {
 
         assertTrue(commands.contains("-c=domain.xml"), "Missing server configuration file override");
 
-        assertTrue(commands.contains("-secmgr"), "Missing -secmgr option");
+        assertEquals(featureVersion < 24, commands.contains("-secmgr"), "Missing -secmgr option");
 
         // If we're using Java 9+ ensure the modular JDK options were added
         testModularJvmArguments(commands, 2);
@@ -280,7 +302,7 @@ class CommandBuilderTest {
     }
 
     private void testEnhancedSecurityManager(final Collection<String> command, final int expectedCount) {
-        // If we're using Java 12+ ensure enhanced security manager option was added
+        // If we're using Java 12+, but less than 24 ensure enhanced security manager option was added
         if (Jvm.current().enhancedSecurityManagerAvailable()) {
             assertArgumentExists(command, "-Djava.security.manager=allow", expectedCount);
         } else {
