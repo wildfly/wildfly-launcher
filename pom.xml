@@ -286,6 +286,7 @@
                     </channels>
                     <galleon-options>
                         <jboss-maven-dist/>
+                        <jboss-fork-embedded>true</jboss-fork-embedded>
                     </galleon-options>
                 </configuration>
                 <executions>

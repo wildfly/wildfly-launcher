@@ -654,12 +654,10 @@ public class CliCommandBuilder implements CommandBuilder {
     public List<String> buildArguments() {
         final List<String> cmd = new ArrayList<>(getJavaOptions());
         if (modularLauncher) {
-            if (environment.getJvm().isModular()) {
-                cmd.addAll(JBossModulesCommandBuilder.DEFAULT_MODULAR_VM_ARGUMENTS);
-                for (final String optionalModularArgument : JBossModulesCommandBuilder.OPTIONAL_DEFAULT_MODULAR_VM_ARGUMENTS) {
-                    if (Jvm.isPackageAvailable(environment.getJvm().getPath(), optionalModularArgument)) {
-                        cmd.add(optionalModularArgument);
-                    }
+            cmd.addAll(JBossModulesCommandBuilder.DEFAULT_MODULAR_VM_ARGUMENTS);
+            for (final String optionalModularArgument : JBossModulesCommandBuilder.OPTIONAL_DEFAULT_MODULAR_VM_ARGUMENTS) {
+                if (Jvm.isPackageAvailable(environment.getJvm().getPath(), optionalModularArgument)) {
+                    cmd.add(optionalModularArgument);
                 }
             }
         }

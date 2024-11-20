@@ -172,8 +172,11 @@ public class JBossModulesCommandBuilder implements CommandBuilder {
      * @return the builder
      */
     public JBossModulesCommandBuilder setUseSecurityManager(final boolean useSecMgr) {
-        this.useSecMgr = useSecMgr;
-        return this;
+        if (environment.getJvm().isSecurityManagerSupported()) {
+            this.useSecMgr = useSecMgr;
+            return this;
+        }
+        throw MESSAGES.securityManagerNotSupported(environment.getJvm().getPath());
     }
 
     /**
@@ -616,12 +619,10 @@ public class JBossModulesCommandBuilder implements CommandBuilder {
             cmd.add("-javaagent:" + getModulesJarName());
         }
         cmd.addAll(getJavaOptions());
-        if (environment.getJvm().isModular()) {
-            cmd.addAll(DEFAULT_MODULAR_VM_ARGUMENTS);
-            for (final String optionalModularArgument : OPTIONAL_DEFAULT_MODULAR_VM_ARGUMENTS) {
-                if (Jvm.isPackageAvailable(environment.getJvm().getPath(), optionalModularArgument)) {
-                    cmd.add(optionalModularArgument);
-                }
+        cmd.addAll(DEFAULT_MODULAR_VM_ARGUMENTS);
+        for (final String optionalModularArgument : OPTIONAL_DEFAULT_MODULAR_VM_ARGUMENTS) {
+            if (Jvm.isPackageAvailable(environment.getJvm().getPath(), optionalModularArgument)) {
+                cmd.add(optionalModularArgument);
             }
         }
         if (environment.getJvm().enhancedSecurityManagerAvailable()) {

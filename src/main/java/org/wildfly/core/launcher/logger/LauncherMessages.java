@@ -45,4 +45,7 @@ public interface LauncherMessages {
 
     @Message(id = 7, value = "The argument %s is not allowed for %s.")
     IllegalArgumentException invalidArgument(String argument, String methodName);
+
+    @Message(id = 8, value = "The security manager is not supported for %s")
+    IllegalArgumentException securityManagerNotSupported(Path javaHome);
 }
