@@ -183,7 +183,7 @@
                         <failsOnError>true</failsOnError>
                         <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
                         <includeTestSourceDirectory>true</includeTestSourceDirectory>
-                        <excludes>**/*$logger.java,**/*$bundle.java</excludes>
+                        <excludes>**/*$logger.java,**/*$bundle.java,**/module-info.java</excludes>
                     </configuration>
                 </plugin>
 
@@ -247,6 +247,29 @@
                         <wildfly.launcher.bootable.jar>${wildfly.launcher.bootable.jar}</wildfly.launcher.bootable.jar>
                     </systemPropertyVariables>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>default-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <excludedGroups>non-modular</excludedGroups>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>non-modular-tests</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <groups>non-modular</groups>
+                            <useModulePath>false</useModulePath>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.wildfly.plugins</groupId>
