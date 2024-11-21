@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.TestTemplate;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,6 +32,7 @@ import org.wildfly.plugin.tools.server.ServerManager;
 /**
  * @author <a href="mailto:jperkins@redhat.com">James R. Perkins</a>
  */
+@Tag("non-modular")
 class ServerLauncherTest {
     private static final Path JBOSS_HOME = Path.of(System.getProperty("jboss.home"));
     private static final Path BOOTABLE_JAR = Path.of(System.getProperty("wildfly.launcher.bootable.jar"));
