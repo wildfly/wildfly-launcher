@@ -35,6 +35,7 @@
         <developerConnection>scm:git:${wildfly.launcher.scm.connection}</developerConnection>
         <url>${wildfly.launcher.scm.url}</url>
     </scm>
+    <url>https://wildfly.org</url>
 
     <properties>
         <wildfly.launcher.scm.connection>git@github.com:wildfly/wildfly-launcher.git</wildfly.launcher.scm.connection>
@@ -237,6 +238,12 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <source>${maven.compiler.release}</source>
+                </configuration>
             </plugin>
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
