@@ -125,7 +125,7 @@
             <exclusions>
                 <!-- Use this launcher API -->
                 <exclusion>
-                    <groupId>org.wildfly.core</groupId>
+                    <groupId>org.wildfly.launcher</groupId>
                     <artifactId>wildfly-launcher</artifactId>
                 </exclusion>
             </exclusions>
