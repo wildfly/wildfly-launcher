@@ -29,13 +29,15 @@ class JvmTest {
 
     @ParameterizedTest
     @MethodSource("testReleases")
-    void releaseFile(final String version, final boolean expectedValue) throws Exception {
+    void releaseFile(final String version, final boolean isModular, final boolean isSecurityManagerSupported) throws Exception {
         final Path javaHome = createFakeJavaHome(version);
         try {
-            assertEquals(expectedValue, Jvm.of(javaHome).isSecurityManagerSupported(), () ->
-                    String.format("Expected version %s to %s support the security manager", version, (expectedValue ? "" : "not")));
+            final Jvm jvm = Jvm.of(javaHome);
+            assertEquals(isModular, jvm.isModular(), () -> String.format("Expected version %s to %s a modular JVM", version, (isModular ? "be" : "not be")));
+            assertEquals(isSecurityManagerSupported, jvm.isSecurityManagerSupported(), () ->
+                    String.format("Expected version %s to %s support the security manager", version, (isSecurityManagerSupported ? "" : "not")));
         } finally {
-            Files.walkFileTree(javaHome, new SimpleFileVisitor<Path>() {
+            Files.walkFileTree(javaHome, new SimpleFileVisitor<>() {
                 @Override
                 public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
                     Files.delete(file);
@@ -53,19 +55,22 @@ class JvmTest {
 
     static Stream<Arguments> testReleases() {
         return Stream.of(
-                arguments("", false),
-                arguments("9", true),
-                arguments("9.0", true),
-                arguments("9.0.1", true),
-                arguments("10", true),
-                arguments("10.0", true),
-                arguments("10.0.2", true),
-                arguments("11", true),
-                arguments("11.0.1", true),
-                arguments("21.0.5", true),
-                arguments("23.0.3", true),
-                arguments("24", false),
-                arguments("25.0.1", false)
+                arguments("", false, false),
+                arguments("1.8", false, true),
+                arguments("1.8.0", false, true),
+                arguments("1.8.0_432", false, true),
+                arguments("9", true, true),
+                arguments("9.0", true, true),
+                arguments("9.0.1", true, true),
+                arguments("10", true, true),
+                arguments("10.0", true, true),
+                arguments("10.0.2", true, true),
+                arguments("11", true, true),
+                arguments("11.0.1", true, true),
+                arguments("21.0.5", true, true),
+                arguments("23.0.3", true, true),
+                arguments("24", true, false),
+                arguments("25.0.1", true, false)
         );
     }
 

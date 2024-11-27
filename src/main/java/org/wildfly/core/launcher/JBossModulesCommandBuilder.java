@@ -619,10 +619,12 @@ public class JBossModulesCommandBuilder implements CommandBuilder {
             cmd.add("-javaagent:" + getModulesJarName());
         }
         cmd.addAll(getJavaOptions());
-        cmd.addAll(DEFAULT_MODULAR_VM_ARGUMENTS);
-        for (final String optionalModularArgument : OPTIONAL_DEFAULT_MODULAR_VM_ARGUMENTS) {
-            if (Jvm.isPackageAvailable(environment.getJvm().getPath(), optionalModularArgument)) {
-                cmd.add(optionalModularArgument);
+        if (environment.getJvm().isModular()) {
+            cmd.addAll(DEFAULT_MODULAR_VM_ARGUMENTS);
+            for (final String optionalModularArgument : OPTIONAL_DEFAULT_MODULAR_VM_ARGUMENTS) {
+                if (Jvm.isPackageAvailable(environment.getJvm().getPath(), optionalModularArgument)) {
+                    cmd.add(optionalModularArgument);
+                }
             }
         }
         if (environment.getJvm().enhancedSecurityManagerAvailable()) {

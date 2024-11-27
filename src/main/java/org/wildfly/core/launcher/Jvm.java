@@ -41,14 +41,16 @@ class Jvm {
         JAVA_HOME = Paths.get(javaHome);
     }
 
-    private static final Jvm DEFAULT = new Jvm(JAVA_HOME, SUPPORTS_SECURITY_MANGER, ENHANCED_SECURITY_MANAGER);
+    private static final Jvm DEFAULT = new Jvm(JAVA_HOME, true, SUPPORTS_SECURITY_MANGER, ENHANCED_SECURITY_MANAGER);
 
     private final Path path;
+    private final boolean isModular;
     private final boolean isSecurityManagerSupported;
     private final boolean enhancedSecurityManager;
 
-    private Jvm(final Path path, final boolean isSecurityManagerSupported, final boolean enhancedSecurityManager) {
+    private Jvm(final Path path, final boolean isModular, final boolean isSecurityManagerSupported, final boolean enhancedSecurityManager) {
         this.path = path;
+        this.isModular = isModular;
         this.isSecurityManagerSupported = isSecurityManagerSupported;
         this.enhancedSecurityManager = enhancedSecurityManager;
     }
@@ -88,7 +90,7 @@ class Jvm {
             return DEFAULT;
         }
         final Path path = validateJavaHome(javaHome);
-        return new Jvm(path, isSecurityManagerSupported(javaHome), hasEnhancedSecurityManager(javaHome));
+        return new Jvm(path, isModularJavaHome(javaHome), isSecurityManagerSupported(javaHome), hasEnhancedSecurityManager(javaHome));
     }
 
     /**
@@ -114,9 +116,8 @@ class Jvm {
      *
      * @return {@code true} if this is a modular JVM, otherwise {@code false}
      */
-    @Deprecated(forRemoval = true, since = "1.0")
     public boolean isModular() {
-        return true;
+        return isModular;
     }
 
     /**
@@ -135,6 +136,52 @@ class Jvm {
      */
     public boolean enhancedSecurityManagerAvailable() {
         return enhancedSecurityManager;
+    }
+
+    private static boolean isModularJavaHome(final Path javaHome) {
+        final Path jmodsDir = javaHome.resolve("jmods");
+        // If the jmods directory exists we can safely assume this is a modular JDK, note even in a modular JDK this
+        // may not exist.
+        if (Files.isDirectory(jmodsDir)) {
+            return true;
+        }
+        // Next check for a $JAVA_HOME/release file, for a JRE this will not exist
+        final Path releaseFile = javaHome.resolve("release");
+        if (Files.isReadable(releaseFile) && Files.isRegularFile(releaseFile)) {
+            // Read the file and look for a JAVA_VERSION property
+            try (final BufferedReader reader = Files.newBufferedReader(releaseFile, StandardCharsets.UTF_8)) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.startsWith("JAVA_VERSION=")) {
+                        // Get the version value
+                        final int index = line.indexOf('=');
+                        return isModularJavaVersion(line.substring(index + 1).replace("\"", ""));
+                    }
+                }
+            } catch (IOException ignore) {
+            }
+        }
+        // Final check is to launch a new process with some modular JVM arguments and check the exit code
+        return isModular(javaHome);
+    }
+
+    private static boolean isModularJavaVersion(final String version) {
+        if (version != null) {
+            try {
+                final String[] versionParts = version.split("\\.");
+                if (versionParts.length == 1) {
+                    return Integer.parseInt(versionParts[0]) >= 9;
+                } else if (versionParts.length > 1) {
+                    // Check the first part and if one, use the second part
+                    if ("1".equals(versionParts[0])) {
+                        return Integer.parseInt(versionParts[2]) >= 9;
+                    }
+                    return Integer.parseInt(versionParts[0]) >= 9;
+                }
+            } catch (Exception ignore) {
+            }
+        }
+        return false;
     }
 
     private static boolean isSecurityManagerSupported(final Path javaHome) {
@@ -205,6 +252,21 @@ class Jvm {
         final List<String> cmd = new ArrayList<>();
         cmd.add(resolveJavaCommand(javaHome));
         cmd.add("-Djava.security.manager");
+        cmd.add("-version");
+        return checkProcessStatus(cmd);
+    }
+
+    /**
+     * Checks to see if the {@code javaHome} is a modular JVM.
+     *
+     * @param javaHome the Java Home if {@code null} an attempt to discover the Java Home will be done
+     *
+     * @return {@code true} if this is a modular environment
+     */
+    private static boolean isModular(final Path javaHome) {
+        final List<String> cmd = new ArrayList<>();
+        cmd.add(resolveJavaCommand(javaHome));
+        cmd.add("--add-modules=java.se");
         cmd.add("-version");
         return checkProcessStatus(cmd);
     }
