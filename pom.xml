@@ -262,7 +262,18 @@
                             <goal>test</goal>
                         </goals>
                         <configuration>
-                            <excludedGroups>non-modular</excludedGroups>
+                            <excludedGroups>new-jvm,non-modular</excludedGroups>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>new-jvm</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>test</goal>
+                        </goals>
+                        <configuration>
+                            <groups>new-jvm</groups>
+                            <reuseForks>false</reuseForks>
                         </configuration>
                     </execution>
                     <execution>
