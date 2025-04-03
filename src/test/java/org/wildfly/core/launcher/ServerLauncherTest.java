@@ -9,6 +9,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -86,10 +87,16 @@ class ServerLauncherTest {
 
         @Override
         public Stream<TestTemplateInvocationContext> provideTestTemplateInvocationContexts(final ExtensionContext context) {
-            return Stream.of(createTestContext("Standalone", StandaloneCommandBuilder.of(JBOSS_HOME), 60L),
-                    createTestContext("Domain", DomainCommandBuilder.of(JBOSS_HOME), 60L),
-                    createTestContext("Bootable JAR", BootableJarCommandBuilder.of(BOOTABLE_JAR), 60L)
-            );
+            final List<TestTemplateInvocationContext> invocationContexts = new ArrayList<>();
+            invocationContexts.add(createTestContext("Standalone", StandaloneCommandBuilder.of(JBOSS_HOME), 60L));
+            invocationContexts.add(createTestContext("Domain", DomainCommandBuilder.of(JBOSS_HOME), 60L));
+            invocationContexts.add(createTestContext("Bootable JAR", BootableJarCommandBuilder.of(BOOTABLE_JAR), 60L));
+            if (Jvm.current().isSecurityManagerSupported()) {
+                invocationContexts.add(createTestContext("Standalone With Security Manager", StandaloneCommandBuilder.of(JBOSS_HOME).setUseSecurityManager(true), 60L));
+                invocationContexts.add(createTestContext("Domain With Security Manager", DomainCommandBuilder.of(JBOSS_HOME).setUseSecurityManager(true), 60L));
+                invocationContexts.add(createTestContext("Bootable JAR With Security Manager", BootableJarCommandBuilder.of(BOOTABLE_JAR).addServerArgument("-secmgr"), 60L));
+            }
+            return invocationContexts.stream();
         }
 
         @SuppressWarnings("SameParameterValue")

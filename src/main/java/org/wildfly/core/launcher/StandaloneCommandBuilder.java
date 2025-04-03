@@ -580,7 +580,7 @@ public class StandaloneCommandBuilder extends AbstractCommandBuilder<StandaloneC
                 }
             }
         }
-        if (environment.getJvm().enhancedSecurityManagerAvailable()) {
+        if (useSecurityManager() && environment.getJvm().enhancedSecurityManagerAvailable()) {
             cmd.add(SECURITY_MANAGER_PROP_WITH_ALLOW_VALUE);
         }
         // Add these to JVM level system properties

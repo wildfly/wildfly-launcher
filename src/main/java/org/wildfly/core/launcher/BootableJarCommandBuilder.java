@@ -468,7 +468,8 @@ public class BootableJarCommandBuilder implements CommandBuilder {
     @Override
     public List<String> buildArguments() {
         final List<String> cmd = new ArrayList<>(getJavaOptions());
-        if (jvm.enhancedSecurityManagerAvailable()) {
+        final var serverArgs = getServerArguments();
+        if (serverArgs.contains("-secmgr") && jvm.enhancedSecurityManagerAvailable()) {
             cmd.add(JBossModulesCommandBuilder.SECURITY_MANAGER_PROP_WITH_ALLOW_VALUE);
         }
         if (modulesLocklessArg != null) {
@@ -496,7 +497,7 @@ public class BootableJarCommandBuilder implements CommandBuilder {
             sb.setLength(0);
         }
 
-        cmd.addAll(getServerArguments());
+        cmd.addAll(serverArgs);
         return cmd;
     }
 

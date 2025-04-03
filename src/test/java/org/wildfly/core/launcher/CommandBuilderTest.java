@@ -303,7 +303,7 @@ class CommandBuilderTest {
 
     private void testEnhancedSecurityManager(final Collection<String> command, final int expectedCount) {
         // If we're using Java 12+, but less than 24 ensure enhanced security manager option was added
-        if (Jvm.current().enhancedSecurityManagerAvailable()) {
+        if (command.contains("-secmgr") && Jvm.current().enhancedSecurityManagerAvailable()) {
             assertArgumentExists(command, "-Djava.security.manager=allow", expectedCount);
         } else {
             assertFalse(command.contains("-Djava.security.manager=allow"),

@@ -663,9 +663,6 @@ public class CliCommandBuilder implements CommandBuilder {
                 }
             }
         }
-        if (environment.getJvm().enhancedSecurityManagerAvailable()) {
-            cmd.add(JBossModulesCommandBuilder.SECURITY_MANAGER_PROP_WITH_ALLOW_VALUE);
-        }
         cmd.add("-jar");
 
         if (modularLauncher) {
