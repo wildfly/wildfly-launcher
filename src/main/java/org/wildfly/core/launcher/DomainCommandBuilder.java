@@ -753,7 +753,7 @@ public class DomainCommandBuilder extends AbstractCommandBuilder<DomainCommandBu
                 }
             }
         }
-        if (hostControllerJvm.enhancedSecurityManagerAvailable()) {
+        if (useSecurityManager() && hostControllerJvm.enhancedSecurityManagerAvailable()) {
             cmd.add(SECURITY_MANAGER_PROP_WITH_ALLOW_VALUE);
         }
 
