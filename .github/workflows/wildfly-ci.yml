@@ -44,19 +44,19 @@ jobs:
       - name: Build and Test on ${{ matrix.os }} - ${{ matrix.java }} with WildFly ${{steps.wildfly-nightly.outputs.wildfly-version}}
         run: mvn clean install '-Dwildfly.feature.pack.version=${{steps.wildfly-nightly.outputs.wildfly-version}}'
       - name: Upload surefire logs for failed run
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: surefire-reports-${{ matrix.os }}-${{ matrix.java }}
           path: '**/surefire-reports/'
       - name: Upload failsafe logs for failed run
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: failsafe-reports-${{ matrix.os }}-${{ matrix.java }}
           path: '**/failsafe-reports/'
       - name: Upload logs for failed run
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: server-logs-${{ matrix.os }}-${{ matrix.java }}
@@ -83,19 +83,19 @@ jobs:
         # 32.0.0.Final was the first version which deployed channels
         run: mvn clean install '-Dwildfly.feature.pack.version=32.0.0.Final'
       - name: Upload surefire logs for failed run
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: legacy-surefire-reports-${{ matrix.os }}-${{ matrix.java }}
           path: '**/surefire-reports/'
       - name: Upload failsafe logs for failed run
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: legacy-failsafe-reports-${{ matrix.os }}-${{ matrix.java }}
           path: '**/failsafe-reports/'
       - name: Upload logs for failed run
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: failure()
         with:
           name: legacy-server-logs-${{ matrix.os }}-${{ matrix.java }}
