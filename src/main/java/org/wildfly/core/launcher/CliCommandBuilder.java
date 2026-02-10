@@ -87,8 +87,11 @@ public class CliCommandBuilder implements CommandBuilder {
         javaOpts = new Arguments();
         cliArgs = new Arguments();
         if (modularLauncher) {
-            // Add the default logging.properties file
-            javaOpts.add("-Dlogging.configuration=file:" + environment.resolvePath("bin", "jboss-cli-logging.properties"));
+            Path logging = environment.resolvePath("bin", "jboss-cli-logging.properties");
+            if (Files.exists(logging)) {
+                // Add the default logging.properties file
+                javaOpts.add("-Dlogging.configuration=file:" + logging);
+            }
         }
     }
 
