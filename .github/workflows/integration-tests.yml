@@ -1,7 +1,7 @@
 # This workflow will build a Java project with Maven
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
 
-name: WildFly Luancher Integration Tests
+name: WildFly Launcher Integration Tests
 
 on:
   push:
@@ -45,6 +45,7 @@ jobs:
             11
             17
             21
+            25
           distribution: 'temurin'
           architecture: x64
           cache: 'maven'
@@ -63,7 +64,15 @@ jobs:
           cd wildfly-arquillian
           ./mvnw versions:use-latest-snapshots -DallowSnapshots -Dincludes=org.wildfly.launcher:wildfly-launcher versions:update-properties
           git diff
-          ./mvnw -B -ntp install -Djava11.home=${{env.JAVA_HOME_11_X64}} -Djava17.home=${{env.JAVA_HOME_17_X64}}
+          ./mvnw -B -ntp install -Djava11.home=${{env.JAVA_HOME_11_X64}} -Djava17.home=${{env.JAVA_HOME_17_X64}} -Djava21.home=${{env.JAVA_HOME_21_X64}} -Djava25.home=${{env.JAVA_HOME_25_X64}}
+      - name: Upload surefire logs for failed run
+        uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: test-reports-wildfly-arquillian
+          path: |
+            **/logs/
+            **/surefire-reports*/
 
   maven-plugin-test:
     name: WildFly Maven Plugin Integration Test
@@ -77,9 +86,9 @@ jobs:
         uses: actions/setup-java@v5
         with:
           java-version: |
-            11
             17
             21
+            25
           distribution: 'temurin'
           architecture: x64
           cache: 'maven'
@@ -98,7 +107,15 @@ jobs:
           cd wildfly-maven-plugin
           ./mvnw versions:use-latest-snapshots -DallowSnapshots -Dincludes=org.wildfly.launcher:wildfly-launcher versions:update-properties
           git diff
-          ./mvnw -B -ntp install -Djava11.home=${{env.JAVA_HOME_11_X64}} -Djava17.home=${{env.JAVA_HOME_17_X64}}
+          ./mvnw -B -ntp install -Djava17.home=${{env.JAVA_HOME_17_X64}} -Djava21.home=${{env.JAVA_HOME_21_X64}} -Djava25.home=${{env.JAVA_HOME_25_X64}}
+      - name: Upload surefire logs for failed run
+        uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: test-reports-wildfly-maven-plugin
+          path: |
+            **/logs/
+            **/surefire-reports*/
 
   wildfly-plugin-tools-test:
     name: WildFly Plugin Tools Integration Test
@@ -115,6 +132,7 @@ jobs:
             11
             17
             21
+            25
           distribution: 'temurin'
           architecture: x64
           cache: 'maven'
@@ -133,4 +151,12 @@ jobs:
           cd wildfly-plugin-tools
           ./mvnw versions:use-latest-snapshots -DallowSnapshots -Dincludes=org.wildfly.launcher:wildfly-launcher versions:update-properties
           git diff
-          ./mvnw -B -ntp install -Djava11.home=${{env.JAVA_HOME_11_X64}} -Djava17.home=${{env.JAVA_HOME_17_X64}}
+          ./mvnw -B -ntp install -Djava11.home=${{env.JAVA_HOME_11_X64}} -Djava17.home=${{env.JAVA_HOME_17_X64}} -Djava21.home=${{env.JAVA_HOME_21_X64}} -Djava25.home=${{env.JAVA_HOME_25_X64}}
+      - name: Upload surefire logs for failed run
+        uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: test-reports-wildfly-plugin-tools
+          path: |
+            **/logs/
+            **/surefire-reports*/

@@ -20,83 +20,80 @@ concurrency:
   group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
   cancel-in-progress: true
 
+env:
+  MVN_CMD: './mvnw -V -B'
+
 jobs:
 
   wildfly-test-and-build:
-    name: '${{ matrix.os }}-jdk${{ matrix.java }}'
+    name: 'wildfly-nightly-${{ matrix.os }}-jdk'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ 'ubuntu-latest' , 'windows-latest' ]
-        java: ['17', '21']
 
     steps:
       - uses: actions/checkout@v6
       - uses: wildfly-extras/wildfly-nightly-download@v1
         id: wildfly-nightly
-      - name: Set up JDK ${{ matrix.java }}
+      - name: Set up JDKs
         uses: actions/setup-java@v5
         with:
-          java-version: ${{ matrix.java }}
           cache: 'maven'
           distribution: 'temurin'
-      - name: Build and Test on ${{ matrix.os }} - ${{ matrix.java }} with WildFly ${{steps.wildfly-nightly.outputs.wildfly-version}}
-        run: ./mvnw clean install '-Dwildfly.feature.pack.version=${{steps.wildfly-nightly.outputs.wildfly-version}}'
+          java-version: |
+            17
+            21
+            25
+            26-ea
+      - name: Build and Test on ${{ matrix.os }} 26-ea with WildFly ${{steps.wildfly-nightly.outputs.wildfly-version}}
+        run: ${{ env.MVN_CMD }} clean verify '-Dwildfly.feature.pack.version=${{steps.wildfly-nightly.outputs.wildfly-version}}'
+      - name: Build and Test on ${{ matrix.os }} 25 with WildFly ${{steps.wildfly-nightly.outputs.wildfly-version}}
+        run: ${{ env.MVN_CMD }} verify '-Dwildfly.feature.pack.version=${{steps.wildfly-nightly.outputs.wildfly-version}}' '-Dtest.java.home=${{env.JAVA_HOME_25_X64}}${{env.JAVA_HOME_25_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports-java25'
+      - name: Build and Test on ${{ matrix.os }} 21 with WildFly ${{steps.wildfly-nightly.outputs.wildfly-version}}
+        run: ${{ env.MVN_CMD }} verify '-Dwildfly.feature.pack.version=${{steps.wildfly-nightly.outputs.wildfly-version}}' '-Dtest.java.home=${{env.JAVA_HOME_21_X64}}${{env.JAVA_HOME_21_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports-java21'
+      - name: Build and Test on ${{ matrix.os }} 17 with WildFly ${{steps.wildfly-nightly.outputs.wildfly-version}}
+        run: ${{ env.MVN_CMD }} verify '-Dwildfly.feature.pack.version=${{steps.wildfly-nightly.outputs.wildfly-version}}' '-Dtest.java.home=${{env.JAVA_HOME_17_X64}}${{env.JAVA_HOME_17_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports-java17'
       - name: Upload surefire logs for failed run
         uses: actions/upload-artifact@v6
         if: failure()
         with:
-          name: surefire-reports-${{ matrix.os }}-${{ matrix.java }}
-          path: '**/surefire-reports/'
-      - name: Upload failsafe logs for failed run
-        uses: actions/upload-artifact@v6
-        if: failure()
-        with:
-          name: failsafe-reports-${{ matrix.os }}-${{ matrix.java }}
-          path: '**/failsafe-reports/'
-      - name: Upload logs for failed run
-        uses: actions/upload-artifact@v6
-        if: failure()
-        with:
-          name: server-logs-${{ matrix.os }}-${{ matrix.java }}
-          path: '**/*.log'
+          name: test-reports-${{ matrix.os }}
+          path: |
+            **/logs/
+            **/surefire-reports*/
 
   legacy-test-and-build:
-    name: 'legacy-${{ matrix.os }}-jdk${{ matrix.java }}'
+    name: 'wildfly-legacy-${{ matrix.os }}'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os: [ 'ubuntu-latest' , 'windows-latest' ]
-        java: ['11', '17', '21']
 
     steps:
       - uses: actions/checkout@v6
-      - name: Set up JDK ${{ matrix.java }}
+      - name: Set up JDKs
         uses: actions/setup-java@v5
         with:
-          java-version: ${{ matrix.java }}
           cache: 'maven'
           distribution: 'temurin'
-      - name: Build and Test on ${{ matrix.os }} - ${{ matrix.java }} with WildFly 32.0.0.Final
-        # 32.0.0.Final was the first version which deployed channels
-        run: ./mvnw clean install '-Dwildfly.feature.pack.version=32.0.0.Final'
+          java-version: |
+            11
+            17
+            21
+      - name: Build and Test on ${{ matrix.os }} 21 with WildFly 32.0.0.Final
+        run: ${{ env.MVN_CMD }} clean verify '-Dwildfly.feature.pack.version=32.0.0.Final'
+      - name: Build and Test on ${{ matrix.os }} 17 with WildFly 32.0.0.Final
+        run: ${{ env.MVN_CMD }} verify '-Dwildfly.feature.pack.version=32.0.0.Final' '-Dtest.java.home=${{env.JAVA_HOME_17_X64}}${{env.JAVA_HOME_17_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports-java17'
+      - name: Build and Test on ${{ matrix.os }} 11 with WildFly 32.0.0.Final
+        run: ${{ env.MVN_CMD }} verify '-Dwildfly.feature.pack.version=32.0.0.Final' '-Dtest.java.home=${{env.JAVA_HOME_11_X64}}${{env.JAVA_HOME_11_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports-java11'
       - name: Upload surefire logs for failed run
         uses: actions/upload-artifact@v6
         if: failure()
         with:
-          name: legacy-surefire-reports-${{ matrix.os }}-${{ matrix.java }}
-          path: '**/surefire-reports/'
-      - name: Upload failsafe logs for failed run
-        uses: actions/upload-artifact@v6
-        if: failure()
-        with:
-          name: legacy-failsafe-reports-${{ matrix.os }}-${{ matrix.java }}
-          path: '**/failsafe-reports/'
-      - name: Upload logs for failed run
-        uses: actions/upload-artifact@v6
-        if: failure()
-        with:
-          name: legacy-server-logs-${{ matrix.os }}-${{ matrix.java }}
-          path: '**/*.log'
+          name: test-reports-${{ matrix.os }}-legacy
+          path: |
+            **/logs/
+            **/surefire-reports*/
