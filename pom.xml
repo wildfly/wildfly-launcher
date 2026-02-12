@@ -12,7 +12,7 @@
     <parent>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-parent</artifactId>
-        <version>50</version>
+        <version>51</version>
     </parent>
 
     <groupId>org.wildfly.launcher</groupId>
@@ -51,6 +51,9 @@
 
         <!-- Dependency versions -->
 
+        <!-- Override the checkstyle version to be compatible with Java 11, see https://checkstyle.org/#JRE_and_JDK -->
+        <version.checkstyle>10.26.1</version.checkstyle>
+
         <!-- Non-default maven plugin versions and configuration -->
         <version.org.wildfly.checkstyle-config>1.0.8.Final</version.org.wildfly.checkstyle-config>
         <version.org.wildfly.plugins.wildfly-maven-plugin>5.1.5.Final</version.org.wildfly.plugins.wildfly-maven-plugin>
@@ -64,6 +67,7 @@
 
         <!-- Test properties -->
         <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
+        <test.java.home>${java.home}</test.java.home>
         <test.modules.path>${project.build.directory}/test-modules</test.modules.path>
 
         <!-- Provisioning properties for tests -->
@@ -71,10 +75,10 @@
 
         <wildfly.feature.pack.groupId>org.wildfly</wildfly.feature.pack.groupId>
         <wildfly.feature.pack.artifactId>wildfly-ee-galleon-pack</wildfly.feature.pack.artifactId>
-        <!-- Keep default at WildFly 34 as WildFly 35+ requires Java 17. Once this project requires Java 17, this
-             property should be set to an empty property.
+        <!-- Leave empty to select the latest version of WildFly. For Java versions under 17, the property will be
+             set to 34.0.1.Final in a profile.
          -->
-        <wildfly.feature.pack.version>34.0.0.Final</wildfly.feature.pack.version>
+        <wildfly.feature.pack.version/>
 
         <wildfly.channel.manifest.groupId>org.wildfly.channels</wildfly.channel.manifest.groupId>
         <wildfly.channel.manifest.artifactId>wildfly-ee</wildfly.channel.manifest.artifactId>
@@ -248,6 +252,7 @@
             <plugin>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <jvm>${test.java.home}${file.separator}bin${file.separator}java</jvm>
                     <systemPropertyVariables>
                         <jboss.home>${jboss.home}</jboss.home>
                         <wildfly.launcher.home>${test.modules.path}</wildfly.launcher.home>
@@ -346,5 +351,17 @@
         </plugins>
 
     </build>
+
+    <profiles>
+        <profile>
+            <id>wildfly-34</id>
+            <activation>
+                <jdk>[,17)</jdk>
+            </activation>
+            <properties>
+                <wildfly.feature.pack.version>34.0.1.Final</wildfly.feature.pack.version>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
