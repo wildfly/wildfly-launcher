@@ -44,7 +44,7 @@ jobs:
           cache: 'maven'
           distribution: 'temurin'
       - name: Build and Test on ${{ matrix.os }} - ${{ matrix.java }}
-        run: mvn clean install '-Dwildfly.feature.pack.version='
+        run: ./mvnw clean install '-Dwildfly.feature.pack.version='
       - name: Upload surefire logs for failed run
         uses: actions/upload-artifact@v6
         if: failure()
@@ -81,7 +81,7 @@ jobs:
           cache: 'maven'
           distribution: 'temurin'
       - name: Build and Test on ${{ matrix.os }} - 11
-        run: mvn -B clean install
+        run: ./mvnw -B clean install
       - name: Upload surefire logs for failed run
         uses: actions/upload-artifact@v6
         if: failure()
