@@ -56,7 +56,7 @@ jobs:
       - name: Build and Test on ${{ matrix.os }} 17 with WildFly ${{steps.wildfly-nightly.outputs.wildfly-version}}
         run: ${{ env.MVN_CMD }} verify '-Dwildfly.feature.pack.version=${{steps.wildfly-nightly.outputs.wildfly-version}}' '-Dtest.java.home=${{env.JAVA_HOME_17_X64}}${{env.JAVA_HOME_17_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports-java17'
       - name: Upload surefire logs for failed run
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-reports-${{ matrix.os }}
@@ -90,7 +90,7 @@ jobs:
       - name: Build and Test on ${{ matrix.os }} 11 with WildFly 32.0.0.Final
         run: ${{ env.MVN_CMD }} verify '-Dwildfly.feature.pack.version=32.0.0.Final' '-Dtest.java.home=${{env.JAVA_HOME_11_X64}}${{env.JAVA_HOME_11_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports-java11'
       - name: Upload surefire logs for failed run
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-reports-${{ matrix.os }}-legacy

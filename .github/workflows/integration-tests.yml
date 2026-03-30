@@ -66,7 +66,7 @@ jobs:
           git diff
           ./mvnw -B -ntp install -Djava11.home=${{env.JAVA_HOME_11_X64}} -Djava17.home=${{env.JAVA_HOME_17_X64}} -Djava21.home=${{env.JAVA_HOME_21_X64}} -Djava25.home=${{env.JAVA_HOME_25_X64}}
       - name: Upload surefire logs for failed run
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-reports-wildfly-arquillian
@@ -109,7 +109,7 @@ jobs:
           git diff
           ./mvnw -B -ntp install -Djava17.home=${{env.JAVA_HOME_17_X64}} -Djava21.home=${{env.JAVA_HOME_21_X64}} -Djava25.home=${{env.JAVA_HOME_25_X64}}
       - name: Upload surefire logs for failed run
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-reports-wildfly-maven-plugin
@@ -153,7 +153,7 @@ jobs:
           git diff
           ./mvnw -B -ntp install -Djava11.home=${{env.JAVA_HOME_11_X64}} -Djava17.home=${{env.JAVA_HOME_17_X64}} -Djava21.home=${{env.JAVA_HOME_21_X64}} -Djava25.home=${{env.JAVA_HOME_25_X64}}
       - name: Upload surefire logs for failed run
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: test-reports-wildfly-plugin-tools
