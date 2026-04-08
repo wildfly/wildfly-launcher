@@ -4,21 +4,19 @@
   ~ SPDX-License-Identifier: Apache-2.0
   -->
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-parent</artifactId>
         <version>52</version>
-        <relativePath/>
+        <relativePath />
     </parent>
 
     <groupId>org.wildfly.launcher</groupId>
     <artifactId>wildfly-launcher</artifactId>
-    <version>1.0.3.Final-SNAPSHOT</version>
+    <version>1.0.3.Final</version>
 
     <name>WildFly: Launcher API</name>
     <description>Tooling for launching WildFly technology stack processes.</description>
@@ -35,7 +33,8 @@
         <connection>scm:git:${wildfly.launcher.scm.connection}</connection>
         <developerConnection>scm:git:${wildfly.launcher.scm.connection}</developerConnection>
         <url>${wildfly.launcher.scm.url}</url>
-    </scm>
+      <tag>v1.0.3.Final</tag>
+  </scm>
     <url>https://wildfly.org</url>
 
     <issueManagement>
@@ -84,7 +83,7 @@
         <!-- Leave empty to select the latest version of WildFly. For Java versions under 17, the property will be
              set to 34.0.1.Final in a profile.
          -->
-        <wildfly.feature.pack.version/>
+        <wildfly.feature.pack.version />
 
         <wildfly.channel.manifest.groupId>org.wildfly.channels</wildfly.channel.manifest.groupId>
         <wildfly.channel.manifest.artifactId>wildfly-ee</wildfly.channel.manifest.artifactId>
@@ -325,7 +324,7 @@
                         </channel>
                     </channels>
                     <galleon-options>
-                        <jboss-maven-dist/>
+                        <jboss-maven-dist />
                         <jboss-fork-embedded>true</jboss-fork-embedded>
                     </galleon-options>
                 </configuration>
