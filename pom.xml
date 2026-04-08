@@ -12,7 +12,8 @@
     <parent>
         <groupId>org.jboss</groupId>
         <artifactId>jboss-parent</artifactId>
-        <version>51</version>
+        <version>52</version>
+        <relativePath/>
     </parent>
 
     <groupId>org.wildfly.launcher</groupId>
@@ -50,12 +51,10 @@
         <wildfly.launcher.bootable.jar>${basedir}/target/${wildfly.bootable.jar.name}</wildfly.launcher.bootable.jar>
 
         <!-- Base on SE 11. -->
+        <jdk.min.version>11</jdk.min.version>
         <maven.compiler.release>11</maven.compiler.release>
         <maven.compiler.source>${maven.compiler.release}</maven.compiler.source>
         <maven.compiler.target>${maven.compiler.release}</maven.compiler.target>
-
-        <!-- Dependency versions -->
-        <version.central.publishing.maven.plugin>0.10.0</version.central.publishing.maven.plugin>
 
         <!-- Override the checkstyle version to be compatible with Java 11, see https://checkstyle.org/#JRE_and_JDK -->
         <version.checkstyle>10.26.1</version.checkstyle>
@@ -75,6 +74,7 @@
         <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
         <test.java.home>${java.home}</test.java.home>
         <test.modules.path>${project.build.directory}/test-modules</test.modules.path>
+        <surefire.reportsDirectory>${project.build.directory}/surefire-reports</surefire.reportsDirectory>
 
         <!-- Provisioning properties for tests -->
         <jboss.home>${project.build.directory}/server</jboss.home>
@@ -195,7 +195,7 @@
                             <id>check-style</id>
                             <phase>compile</phase>
                             <goals>
-                                <goal>checkstyle</goal>
+                                <goal>check</goal>
                             </goals>
                         </execution>
                     </executions>
@@ -256,6 +256,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <jvm>${test.java.home}${file.separator}bin${file.separator}java</jvm>
+                    <reportsDirectory>${surefire.reportsDirectory}</reportsDirectory>
                     <systemPropertyVariables>
                         <jboss.home>${jboss.home}</jboss.home>
                         <wildfly.launcher.home>${test.modules.path}</wildfly.launcher.home>
@@ -364,79 +365,6 @@
             <properties>
                 <wildfly.feature.pack.version>34.0.1.Final</wildfly.feature.pack.version>
             </properties>
-        </profile>
-        <profile>
-            <id>central-release</id>
-
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>${central.serverId}</id>
-                    <url>${central.sonatype.url}</url>
-                </snapshotRepository>
-                <repository>
-                    <id>${central.serverId}</id>
-                    <url>${central.sonatype.url}</url>
-                </repository>
-            </distributionManagement>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>aggregate-javadoc</id>
-                                <goals>
-                                    <goal>aggregate</goal>
-                                </goals>
-                                <phase>package</phase>
-                            </execution>
-                            <execution>
-                                <id>attach-javadocs</id>
-                                <goals>
-                                    <goal>jar</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.sonatype.central</groupId>
-                        <artifactId>central-publishing-maven-plugin</artifactId>
-                        <version>${version.central.publishing.maven.plugin}</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <publishingServerId>${central.serverId}</publishingServerId>
-                            <autoPublish>${central.autoPublish}</autoPublish>
-                            <waitUntil>${central.waitUntil}</waitUntil>
-                            <deploymentName>${central.deploymentName}</deploymentName>
-                            <skipPublishing>${central.skipPublishing}</skipPublishing>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
     </profiles>
 
