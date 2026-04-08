@@ -45,16 +45,16 @@ jobs:
           java-version: |
             17
             21
+            26
             25
-            26-ea
-      - name: Build and Test on ${{ matrix.os }} 26-ea with WildFly ${{steps.wildfly-nightly.outputs.wildfly-version}}
-        run: ${{ env.MVN_CMD }} clean verify '-Dwildfly.feature.pack.version=${{steps.wildfly-nightly.outputs.wildfly-version}}'
       - name: Build and Test on ${{ matrix.os }} 25 with WildFly ${{steps.wildfly-nightly.outputs.wildfly-version}}
-        run: ${{ env.MVN_CMD }} verify '-Dwildfly.feature.pack.version=${{steps.wildfly-nightly.outputs.wildfly-version}}' '-Dtest.java.home=${{env.JAVA_HOME_25_X64}}${{env.JAVA_HOME_25_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports-java25'
+        run: ${{ env.MVN_CMD }} clean verify '-Dwildfly.feature.pack.version=${{steps.wildfly-nightly.outputs.wildfly-version}}'
+      - name: Build and Test on ${{ matrix.os }} 26 with WildFly ${{steps.wildfly-nightly.outputs.wildfly-version}}
+        run: ${{ env.MVN_CMD }} verify '-Dwildfly.feature.pack.version=${{steps.wildfly-nightly.outputs.wildfly-version}}' '-Dtest.java.home=${{env.JAVA_HOME_26_X64}}${{env.JAVA_HOME_26_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports/java26'
       - name: Build and Test on ${{ matrix.os }} 21 with WildFly ${{steps.wildfly-nightly.outputs.wildfly-version}}
-        run: ${{ env.MVN_CMD }} verify '-Dwildfly.feature.pack.version=${{steps.wildfly-nightly.outputs.wildfly-version}}' '-Dtest.java.home=${{env.JAVA_HOME_21_X64}}${{env.JAVA_HOME_21_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports-java21'
+        run: ${{ env.MVN_CMD }} verify '-Dwildfly.feature.pack.version=${{steps.wildfly-nightly.outputs.wildfly-version}}' '-Dtest.java.home=${{env.JAVA_HOME_21_X64}}${{env.JAVA_HOME_21_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports/java21'
       - name: Build and Test on ${{ matrix.os }} 17 with WildFly ${{steps.wildfly-nightly.outputs.wildfly-version}}
-        run: ${{ env.MVN_CMD }} verify '-Dwildfly.feature.pack.version=${{steps.wildfly-nightly.outputs.wildfly-version}}' '-Dtest.java.home=${{env.JAVA_HOME_17_X64}}${{env.JAVA_HOME_17_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports-java17'
+        run: ${{ env.MVN_CMD }} verify '-Dwildfly.feature.pack.version=${{steps.wildfly-nightly.outputs.wildfly-version}}' '-Dtest.java.home=${{env.JAVA_HOME_17_X64}}${{env.JAVA_HOME_17_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports/java17'
       - name: Upload surefire logs for failed run
         uses: actions/upload-artifact@v7
         if: failure()
@@ -86,9 +86,9 @@ jobs:
       - name: Build and Test on ${{ matrix.os }} 21 with WildFly 32.0.0.Final
         run: ${{ env.MVN_CMD }} clean verify '-Dwildfly.feature.pack.version=32.0.0.Final'
       - name: Build and Test on ${{ matrix.os }} 17 with WildFly 32.0.0.Final
-        run: ${{ env.MVN_CMD }} verify '-Dwildfly.feature.pack.version=32.0.0.Final' '-Dtest.java.home=${{env.JAVA_HOME_17_X64}}${{env.JAVA_HOME_17_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports-java17'
+        run: ${{ env.MVN_CMD }} verify '-Dwildfly.feature.pack.version=32.0.0.Final' '-Dtest.java.home=${{env.JAVA_HOME_17_X64}}${{env.JAVA_HOME_17_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports/java17'
       - name: Build and Test on ${{ matrix.os }} 11 with WildFly 32.0.0.Final
-        run: ${{ env.MVN_CMD }} verify '-Dwildfly.feature.pack.version=32.0.0.Final' '-Dtest.java.home=${{env.JAVA_HOME_11_X64}}${{env.JAVA_HOME_11_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports-java11'
+        run: ${{ env.MVN_CMD }} verify '-Dwildfly.feature.pack.version=32.0.0.Final' '-Dtest.java.home=${{env.JAVA_HOME_11_X64}}${{env.JAVA_HOME_11_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports/java11'
       - name: Upload surefire logs for failed run
         uses: actions/upload-artifact@v7
         if: failure()

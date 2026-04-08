@@ -74,6 +74,7 @@
         <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
         <test.java.home>${java.home}</test.java.home>
         <test.modules.path>${project.build.directory}/test-modules</test.modules.path>
+        <surefire.reportsDirectory>${project.build.directory}/surefire-reports</surefire.reportsDirectory>
 
         <!-- Provisioning properties for tests -->
         <jboss.home>${project.build.directory}/server</jboss.home>
@@ -255,6 +256,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
                     <jvm>${test.java.home}${file.separator}bin${file.separator}java</jvm>
+                    <reportsDirectory>${surefire.reportsDirectory}</reportsDirectory>
                     <systemPropertyVariables>
                         <jboss.home>${jboss.home}</jboss.home>
                         <wildfly.launcher.home>${test.modules.path}</wildfly.launcher.home>
