@@ -195,7 +195,7 @@
                             <id>check-style</id>
                             <phase>compile</phase>
                             <goals>
-                                <goal>checkstyle</goal>
+                                <goal>check</goal>
                             </goals>
                         </execution>
                     </executions>
