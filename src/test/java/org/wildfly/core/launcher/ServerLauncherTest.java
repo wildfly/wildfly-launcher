@@ -37,6 +37,7 @@ import org.wildfly.plugin.tools.server.ServerManager;
 class ServerLauncherTest {
     private static final Path JBOSS_HOME = Path.of(System.getProperty("jboss.home"));
     private static final Path BOOTABLE_JAR = Path.of(System.getProperty("wildfly.launcher.bootable.jar"));
+    private static final boolean TEST_SECURITY_MANAGER = Boolean.parseBoolean(System.getProperty("wildfly.security.manager"));
 
 
     @TestTemplate
@@ -91,7 +92,7 @@ class ServerLauncherTest {
             invocationContexts.add(createTestContext("Standalone", StandaloneCommandBuilder.of(JBOSS_HOME), 60L));
             invocationContexts.add(createTestContext("Domain", DomainCommandBuilder.of(JBOSS_HOME), 60L));
             invocationContexts.add(createTestContext("Bootable JAR", BootableJarCommandBuilder.of(BOOTABLE_JAR), 60L));
-            if (Jvm.current().isSecurityManagerSupported()) {
+            if (TEST_SECURITY_MANAGER && Jvm.current().isSecurityManagerSupported()) {
                 invocationContexts.add(createTestContext("Standalone With Security Manager", StandaloneCommandBuilder.of(JBOSS_HOME).setUseSecurityManager(true), 60L));
                 invocationContexts.add(createTestContext("Domain With Security Manager", DomainCommandBuilder.of(JBOSS_HOME).setUseSecurityManager(true), 60L));
                 invocationContexts.add(createTestContext("Bootable JAR With Security Manager", BootableJarCommandBuilder.of(BOOTABLE_JAR).addServerArgument("-secmgr"), 60L));
