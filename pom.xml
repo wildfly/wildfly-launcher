@@ -89,6 +89,11 @@
         <wildfly.channel.manifest.artifactId>wildfly-ee</wildfly.channel.manifest.artifactId>
         <wildfly.channel.manifest.version>${wildfly.feature.pack.version}</wildfly.channel.manifest.version>
 
+        <!-- Used to enabled/disable testing the boot with the security manager enabled. EE 11 does not work with the
+             security manager enabled. By default, WildFly 40+ is EE 11.
+         -->
+        <wildfly.security.manager>false</wildfly.security.manager>
+
         <!-- maven-release-plugin configuration -->
         <autoVersionSubmodules>true</autoVersionSubmodules>
         <releaseProfiles>central-release</releaseProfiles>
@@ -260,6 +265,7 @@
                         <jboss.home>${jboss.home}</jboss.home>
                         <wildfly.launcher.home>${test.modules.path}</wildfly.launcher.home>
                         <wildfly.launcher.bootable.jar>${wildfly.launcher.bootable.jar}</wildfly.launcher.bootable.jar>
+                        <wildfly.security.manager>${wildfly.security.manager}</wildfly.security.manager>
                     </systemPropertyVariables>
                 </configuration>
                 <executions>
@@ -363,6 +369,7 @@
             </activation>
             <properties>
                 <wildfly.feature.pack.version>34.0.1.Final</wildfly.feature.pack.version>
+                <wildfly.security.manager>true</wildfly.security.manager>
             </properties>
         </profile>
     </profiles>
