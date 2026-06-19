@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Project
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: wildfly-launcher
       - name: Set up JDKs
@@ -55,7 +55,7 @@ jobs:
           cd wildfly-launcher
           ./mvnw -B -ntp install -DskipTests
       - name: Check out WildFly Arquillian
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: wildfly/wildfly-arquillian
           path: wildfly-arquillian
@@ -79,7 +79,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Project
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: wildfly-launcher
       - name: Set up JDKs
@@ -98,7 +98,7 @@ jobs:
           cd wildfly-launcher
           ./mvnw -B -ntp install -DskipTests
       - name: Check out WildFly Maven Plugin
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: wildfly/wildfly-maven-plugin
           path: wildfly-maven-plugin
@@ -122,7 +122,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Project
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: wildfly-launcher
       - name: Set up JDKs
@@ -142,7 +142,7 @@ jobs:
           cd wildfly-launcher
           ./mvnw -B -ntp install -DskipTests
       - name: Check out WildFly Plugin Tools
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: wildfly/wildfly-plugin-tools
           path: wildfly-plugin-tools
