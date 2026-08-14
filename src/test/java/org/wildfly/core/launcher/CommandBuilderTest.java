@@ -330,6 +330,7 @@ class CommandBuilderTest {
         assertArgumentExists(command, "--add-opens=java.base/java.security=ALL-UNNAMED", expectedCount);
         assertArgumentExists(command, "--add-opens=java.base/java.util=ALL-UNNAMED", expectedCount);
         assertArgumentExists(command, "--add-opens=java.base/java.util.concurrent=ALL-UNNAMED", expectedCount);
+        assertArgumentExists(command, "--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED", expectedCount);
         assertArgumentExists(command, "--add-opens=java.management/javax.management=ALL-UNNAMED", expectedCount);
         assertArgumentExists(command, "--add-opens=java.naming/javax.naming=ALL-UNNAMED", expectedCount);
         assertArgumentExists(command, "--add-modules=java.se", expectedCount);
