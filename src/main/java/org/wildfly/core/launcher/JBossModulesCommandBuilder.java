@@ -65,6 +65,7 @@ public class JBossModulesCommandBuilder implements CommandBuilder {
                     "--add-opens=java.base/java.security=ALL-UNNAMED",
                     "--add-opens=java.base/java.util=ALL-UNNAMED",
                     "--add-opens=java.base/java.util.concurrent=ALL-UNNAMED",
+                    "--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED",
                     "--add-opens=java.management/javax.management=ALL-UNNAMED",
                     "--add-opens=java.naming/javax.naming=ALL-UNNAMED",
                     // As of jboss-modules 1.9.1.Final the java.se module is no longer required to be added. However as this API is
