@@ -23,6 +23,7 @@ jobs:
   arquillian-test:
     name: WildFly Arquillian Integration Test
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - name: Checkout Project
         uses: actions/checkout@v7
@@ -67,6 +68,7 @@ jobs:
   maven-plugin-test:
     name: WildFly Maven Plugin Integration Test
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - name: Checkout Project
         uses: actions/checkout@v7
@@ -110,6 +112,7 @@ jobs:
   wildfly-plugin-tools-test:
     name: WildFly Plugin Tools Integration Test
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - name: Checkout Project
         uses: actions/checkout@v7

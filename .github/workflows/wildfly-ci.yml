@@ -26,6 +26,7 @@ jobs:
   wildfly-test-and-build:
     name: 'wildfly-nightly-${{ matrix.os }}-jdk'
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -66,6 +67,7 @@ jobs:
   legacy-test-and-build:
     name: 'wildfly-legacy-${{ matrix.os }}'
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
