@@ -9,11 +9,15 @@ on:
       - 'dependabot/**'
     paths:
       - '.github/workflows/ci.yml'
+      - '.mvn/**'
+      - 'mvnw*'
       - '**/pom.xml'
       - 'src/**'
   pull_request:
     paths:
       - '.github/workflows/ci.yml'
+      - '.mvn/**'
+      - 'mvnw*'
       - '**/pom.xml'
       - 'src/**'
   schedule:
@@ -53,11 +57,11 @@ jobs:
       - name: Build and Test on ${{ matrix.os }} - Java 25
         run: ${{ env.MVN_CMD }} clean verify
       - name: Build and Test on ${{ matrix.os }} - Java 26
-        run: ${{ env.MVN_CMD }} verify '-Dtest.java.home=${{env.JAVA_HOME_26_X64}}${{env.JAVA_HOME_26_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports/java26'
+        run: ${{ env.MVN_CMD }} verify '-Dtest.java.home=${{env.JAVA_HOME_26_X64}}${{env.JAVA_HOME_26_AARCH64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports/java26'
       - name: Build and Test on ${{ matrix.os }} - Java 21
-        run: ${{ env.MVN_CMD }} verify '-Dtest.java.home=${{env.JAVA_HOME_21_X64}}${{env.JAVA_HOME_21_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports/java21'
+        run: ${{ env.MVN_CMD }} verify '-Dtest.java.home=${{env.JAVA_HOME_21_X64}}${{env.JAVA_HOME_21_AARCH64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports/java21'
       - name: Build and Test on ${{ matrix.os }} - Java 17
-        run: ${{ env.MVN_CMD }} verify '-Dtest.java.home=${{env.JAVA_HOME_17_X64}}${{env.JAVA_HOME_17_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports/java17'
+        run: ${{ env.MVN_CMD }} verify '-Dtest.java.home=${{env.JAVA_HOME_17_X64}}${{env.JAVA_HOME_17_AARCH64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports/java17'
       - name: Upload test logs for failed run
         uses: actions/upload-artifact@v7
         if: failure()
