@@ -7,19 +7,7 @@ on:
   push:
     branches-ignore:
       - 'dependabot/**'
-    paths:
-      - '.github/workflows/ci.yml'
-      - '.mvn/**'
-      - 'mvnw*'
-      - '**/pom.xml'
-      - 'src/**'
   pull_request:
-    paths:
-      - '.github/workflows/ci.yml'
-      - '.mvn/**'
-      - 'mvnw*'
-      - '**/pom.xml'
-      - 'src/**'
   schedule:
     - cron: '0 0 * * *' # Every day at 00:00 UTC
 

@@ -10,8 +10,6 @@ on:
   pull_request:
     branches:
       - '**'
-    paths:
-      - '.github/workflows/wildfly-ci.yml'
   schedule:
     - cron: '0 0 * * *' # Every day at 00:00 UTC
 
