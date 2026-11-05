@@ -57,6 +57,8 @@
 
         <!-- Override the checkstyle version to be compatible with Java 11, see https://checkstyle.org/#JRE_and_JDK -->
         <version.checkstyle>10.26.1</version.checkstyle>
+        <!-- Override the surefire version, 3.6.0 silently runs no tests with reuseForks=false and a different test JVM, see https://github.com/apache/maven-surefire/pull/3453 -->
+        <version.surefire>3.6.1</version.surefire>
 
         <!-- Non-default maven plugin versions and configuration -->
         <version.org.wildfly.checkstyle-config>1.0.8.Final</version.org.wildfly.checkstyle-config>
@@ -70,6 +72,7 @@
         <version.org.junit>5.13.4</version.org.junit>
 
         <!-- Test properties -->
+        <failIfNoTests>true</failIfNoTests>
         <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
         <test.java.home>${java.home}</test.java.home>
         <test.modules.path>${project.build.directory}/test-modules</test.modules.path>
