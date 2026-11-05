@@ -49,6 +49,7 @@ jobs:
         with:
           cache: 'maven'
           distribution: 'temurin'
+          # Please note the order here of having 25 last as that is the version we want to compile with
           java-version: |
             17
             21
