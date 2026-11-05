@@ -7,22 +7,14 @@ on:
   push:
     branches-ignore:
       - 'dependabot/**'
-    paths:
-      - '.github/workflows/ci.yml'
-      - '**/pom.xml'
-      - 'src/**'
   pull_request:
-    paths:
-      - '.github/workflows/ci.yml'
-      - '**/pom.xml'
-      - 'src/**'
   schedule:
     - cron: '0 0 * * *' # Every day at 00:00 UTC
 
-# Only run the latest job
+# Only run the latest job for pull requests, do not cancel runs on branches or scheduled runs
 concurrency:
   group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   MVN_CMD: './mvnw -V -B'
@@ -32,6 +24,7 @@ jobs:
   build:
     name: '${{ matrix.os }}'
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -45,6 +38,7 @@ jobs:
         with:
           cache: 'maven'
           distribution: 'temurin'
+          # Please note the order here of having 25 last as that is the version we want to compile with
           java-version: |
             17
             21
@@ -53,11 +47,11 @@ jobs:
       - name: Build and Test on ${{ matrix.os }} - Java 25
         run: ${{ env.MVN_CMD }} clean verify
       - name: Build and Test on ${{ matrix.os }} - Java 26
-        run: ${{ env.MVN_CMD }} verify '-Dtest.java.home=${{env.JAVA_HOME_26_X64}}${{env.JAVA_HOME_26_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports/java26'
+        run: ${{ env.MVN_CMD }} verify '-Dtest.java.home=${{env.JAVA_HOME_26_X64}}${{env.JAVA_HOME_26_AARCH64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports/java26'
       - name: Build and Test on ${{ matrix.os }} - Java 21
-        run: ${{ env.MVN_CMD }} verify '-Dtest.java.home=${{env.JAVA_HOME_21_X64}}${{env.JAVA_HOME_21_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports/java21'
+        run: ${{ env.MVN_CMD }} verify '-Dtest.java.home=${{env.JAVA_HOME_21_X64}}${{env.JAVA_HOME_21_AARCH64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports/java21'
       - name: Build and Test on ${{ matrix.os }} - Java 17
-        run: ${{ env.MVN_CMD }} verify '-Dtest.java.home=${{env.JAVA_HOME_17_X64}}${{env.JAVA_HOME_17_ARM64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports/java17'
+        run: ${{ env.MVN_CMD }} verify '-Dtest.java.home=${{env.JAVA_HOME_17_X64}}${{env.JAVA_HOME_17_AARCH64}}' '-Dsurefire.reportsDirectory=${project.build.directory}/surefire-reports/java17'
       - name: Upload test logs for failed run
         uses: actions/upload-artifact@v7
         if: failure()
@@ -70,6 +64,7 @@ jobs:
   build-jdk-11:
     name: '${{ matrix.os }}-jdk11'
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:

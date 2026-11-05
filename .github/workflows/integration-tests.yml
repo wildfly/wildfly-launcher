@@ -5,34 +5,25 @@ name: WildFly Launcher Integration Tests
 
 on:
   push:
-    branches:
-      - '**'
-    paths:
-      - '.github/workflows/integration-tests.yml'
-      - '**/pom.xml'
-      - 'src/main/**'
-      - '!src/test/**'
+    branches-ignore:
+      - 'dependabot/**'
   pull_request:
     branches:
       - '**'
-    paths:
-      - '.github/workflows/integration-tests.yml'
-      - '**/pom.xml'
-      - 'src/**'
-      - '!src/test/**'
   schedule:
     - cron: '0 0 * * *' # Every day at 00:00 UTC
 
-# Only run the latest job
+# Only run the latest job for pull requests, do not cancel runs on branches or scheduled runs
 concurrency:
   group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
 
   arquillian-test:
     name: WildFly Arquillian Integration Test
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - name: Checkout Project
         uses: actions/checkout@v7
@@ -77,6 +68,7 @@ jobs:
   maven-plugin-test:
     name: WildFly Maven Plugin Integration Test
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - name: Checkout Project
         uses: actions/checkout@v7
@@ -120,6 +112,7 @@ jobs:
   wildfly-plugin-tools-test:
     name: WildFly Plugin Tools Integration Test
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - name: Checkout Project
         uses: actions/checkout@v7
