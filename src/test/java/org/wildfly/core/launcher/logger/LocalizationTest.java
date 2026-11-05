@@ -40,7 +40,7 @@ abstract class LocalizationTest {
         final Properties properties = loadProperties();
         final Path pathName = Path.of("path");
         // Compare the message from the translation file to the message from the message interface
-        Assertions.assertEquals(String.format("WFLYLNCHR0001: " + properties.getProperty("pathDoesNotExist"), pathName),
+        Assertions.assertEquals(String.format(String.format("WFLYLNCHR0001: %s", properties.getProperty("pathDoesNotExist")), pathName),
                 LauncherMessages.MESSAGES.pathDoesNotExist(pathName).getMessage());
     }
 
